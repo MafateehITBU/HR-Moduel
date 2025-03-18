@@ -13,7 +13,7 @@ const auth = {
       return res.status(403).json({ error: "Access denied" });
     }
 
-    jwt.verify(token, 'your_jwt_secret', (err, user) => {
+    jwt.verify(token, process.env.SECRET_KEY, (err, user) => {
       if (err) {
         return res.status(403).json({ error: "Invalid token" });
       }
