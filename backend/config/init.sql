@@ -7,6 +7,30 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 -------------- Employee Management --------------------------------
+-- Department structure (created first to avoid circular dependency)
+CREATE TABLE IF NOT EXISTS departments (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL UNIQUE,
+    employeeCount INTEGER DEFAULT 0
+);
+
+-- Teams table (created before employees since it's referenced)
+CREATE TABLE IF NOT EXISTS teams (
+    id SERIAL PRIMARY KEY,
+    teamName VARCHAR(255) NOT NULL,
+    depID INTEGER,
+    FOREIGN KEY (depID) REFERENCES departments (id)
+);
+
+-- Job Titles table (created before employees since it's referenced)
+CREATE TABLE IF NOT EXISTS jobTitles (
+    id SERIAL PRIMARY KEY,
+    jobTitle VARCHAR(255) NOT NULL,
+    description VARCHAR(255) NOT NULL,
+    depID INTEGER,
+    FOREIGN KEY (depID) REFERENCES departments (id)
+);
+
 -- Employee table
 CREATE TABLE IF NOT EXISTS employees (
     id SERIAL PRIMARY KEY,
@@ -26,33 +50,9 @@ CREATE TABLE IF NOT EXISTS employees (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Department structure
-CREATE TABLE IF NOT EXISTS departments (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL UNIQUE,
-    employeeCount INTEGER DEFAULT 0,
-    departmentHeadID INTEGER,
-    FOREIGN KEY (departmentHeadID) REFERENCES employees (id)
-);
-
--- Job Titles table
-CREATE TABLE IF NOT EXISTS jobTitles (
-    id SERIAL PRIMARY KEY,
-    jobTitle VARCHAR(255) NOT NULL,
-    description VARCHAR(255) NOT NULL,
-    depID INTEGER,
-    FOREIGN KEY (depID) REFERENCES departments (id)
-);
-
--- Teams table
-CREATE TABLE IF NOT EXISTS teams (
-    id SERIAL PRIMARY KEY,
-    teamName VARCHAR(255) NOT NULL,
-    teamLead INTEGER,
-    depID INTEGER NOT NULL,
-    FOREIGN KEY (teamLead) REFERENCES employees (id),
-    FOREIGN KEY (depID) REFERENCES departments (id)
-);
+-- Add department head foreign key after both tables exist
+ALTER TABLE departments ADD COLUMN departmentHeadID INTEGER;
+ALTER TABLE departments ADD FOREIGN KEY (departmentHeadID) REFERENCES employees (id);
 
 -------------------- Recruitment ----------------------------------
 -- Job posting table
